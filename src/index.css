@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #F2F4EF;
+  color: #232B38;
+}
+
+/* Signature element: a hand-highlighted look for cited source text,
+   mimicking the highlighter mark a student draws over the exact
+   sentence that answers their question. */
+.highlight-mark {
+  position: relative;
+  display: inline;
+}
+.highlight-mark::before {
+  content: "";
+  position: absolute;
+  left: -0.15em;
+  right: -0.15em;
+  top: 0.12em;
+  bottom: 0.02em;
+  background: linear-gradient(100deg, #F6C744 0%, #F8D268 100%);
+  transform: rotate(-0.6deg);
+  border-radius: 3px 7px 4px 8px;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
