@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { LogOut, Upload, Send, BookOpen } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { uploadDocument, askQuestion, ApiError } from "../api/client";
+import { uploadDocument, deleteDocument, askQuestion, ApiError } from "../api/client";
 import DocumentChip from "../components/DocumentChip";
 import AnswerMessage from "../components/AnswerMessage";
 import Spinner from "../components/Spinner";
@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
   const [asking, setAsking] = useState(false);
@@ -26,7 +27,7 @@ export default function DashboardPage() {
       const result = await uploadDocument(file, token);
       setDocuments((prev) => [
         ...prev,
-        { filename: result.filename, chunks: result.chunks_created },
+        { id: result.document_id, filename: result.filename, chunks: result.chunks_created },
       ]);
     } catch (err) {
       setUploadError(
@@ -35,6 +36,21 @@ export default function DashboardPage() {
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleDelete(docId) {
+    setUploadError("");
+    setDeletingId(docId);
+    try {
+      await deleteDocument(docId, token);
+      setDocuments((prev) => prev.filter((d) => d.id !== docId));
+    } catch (err) {
+      setUploadError(
+        err instanceof ApiError ? err.message : "Couldn't delete that document. Try again."
+      );
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -61,8 +77,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-rule bg-card">
+    <div className="h-screen flex flex-col bg-paper overflow-hidden">
+      <header className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-rule bg-card">
         <div className="flex items-center gap-2">
           <BookOpen className="text-pine" size={22} strokeWidth={2.2} />
           <span className="font-display font-semibold text-ink">CourseMind AI</span>
@@ -78,9 +94,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row max-w-6xl w-full mx-auto lg:min-h-0">
-        {/* Sidebar */}
-        <aside className="lg:w-72 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-rule px-6 py-6">
+      <div className="flex-1 flex flex-col lg:flex-row max-w-6xl w-full mx-auto overflow-hidden">
+        <aside className="lg:w-72 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-rule px-6 py-6 overflow-y-auto">
           <h2 className="font-display font-semibold text-ink mb-1">Your documents</h2>
           <p className="font-body text-sm text-inksoft mb-4">
             Upload a PDF to ask questions about it.
@@ -116,16 +131,21 @@ export default function DashboardPage() {
                 Nothing uploaded yet this session.
               </p>
             ) : (
-              documents.map((doc, i) => (
-                <DocumentChip key={i} filename={doc.filename} chunks={doc.chunks} />
+              documents.map((doc) => (
+                <DocumentChip
+                  key={doc.id}
+                  filename={doc.filename}
+                  chunks={doc.chunks}
+                  onDelete={() => handleDelete(doc.id)}
+                  deleting={deletingId === doc.id}
+                />
               ))
             )}
           </div>
         </aside>
 
-        {/* Chat */}
-        <main className="flex-1 flex flex-col px-6 py-6 min-h-[70vh]">
-          <div className="flex-1 space-y-6 mb-6 overflow-y-auto">
+        <main className="flex-1 flex flex-col overflow-hidden px-6 py-6">
+          <div className="flex-1 overflow-y-auto space-y-6 mb-6">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-16">
                 <BookOpen size={32} className="text-rule mb-3" />
@@ -146,9 +166,9 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {askError && <p className="font-body text-sm text-danger mb-3">{askError}</p>}
+          {askError && <p className="font-body text-sm text-danger mb-3 flex-shrink-0">{askError}</p>}
 
-          <form onSubmit={handleAsk} className="flex gap-2">
+          <form onSubmit={handleAsk} className="flex gap-2 flex-shrink-0">
             <input
               type="text"
               value={question}

@@ -67,3 +67,10 @@ export function askQuestion(question, token) {
     body: JSON.stringify({ question }),
   });
 }
+
+export function deleteDocument(documentId, token) {
+  return request(`/documents/${documentId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
