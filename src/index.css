@@ -11,8 +11,12 @@ body {
    mimicking the highlighter mark a student draws over the exact
    sentence that answers their question. */
 .highlight-mark {
-  position: relative;
-  display: inline;
+  background: linear-gradient(100deg, #F6C744 0%, #F8D268 100%);
+  padding: 0.05em 0.2em;
+  margin: 0 -0.2em;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 .highlight-mark::before {
   content: "";
