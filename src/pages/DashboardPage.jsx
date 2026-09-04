@@ -76,7 +76,7 @@ export default function DashboardPage() {
     }
   }
 
-  return (
+return (
     <div className="h-screen flex flex-col bg-paper overflow-hidden">
       <header className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-rule bg-card">
         <div className="flex items-center gap-2">
@@ -95,10 +95,14 @@ export default function DashboardPage() {
       </header>
 
       <div className="flex-1 flex flex-col lg:flex-row max-w-6xl w-full mx-auto overflow-hidden">
+        {/* Sidebar - scrolls independently, never pushed off-screen by chat growth */}
         <aside className="lg:w-72 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-rule px-6 py-6 overflow-y-auto">
           <h2 className="font-display font-semibold text-ink mb-1">Your documents</h2>
-          <p className="font-body text-sm text-inksoft mb-4">
+          <p className="font-body text-sm text-inksoft mb-1.5">
             Upload a PDF to ask questions about it.
+          </p>
+          <p className="font-mono text-xs text-inksoft mb-4">
+            For best results, keep it to 1-2 pages - this runs on free hosting with limited memory.
           </p>
 
           <label className="flex items-center justify-center gap-2 border-2 border-dashed border-rule rounded-xl py-6 cursor-pointer hover:border-pine hover:bg-pine/5 transition-colors mb-4">
@@ -144,6 +148,7 @@ export default function DashboardPage() {
           </div>
         </aside>
 
+        {/* Chat - only this part scrolls as messages grow */}
         <main className="flex-1 flex flex-col overflow-hidden px-6 py-6">
           <div className="flex-1 overflow-y-auto space-y-6 mb-6">
             {messages.length === 0 ? (
